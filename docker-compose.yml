@@ -1,0 +1,43 @@
+version: '3'
+services:
+  mongo:
+    container_name: mongo
+    build: ./mongodb
+    ports:
+      - "7000:10000"
+    volumes:
+      - ./mongodb/data:/data/db
+      - ./mongodb/logs/:/var/log/mongodb/
+      - ./mongodb/conf/mongod.conf:/etc/mongod.conf
+    environment:
+      - MONGO_INITDB_DATABASE=grpc
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+  grpc:
+    container_name: grpc
+    build: ./grpc-server
+    environment:
+      - PORT=9001
+      - TOKEN=foobarbaz
+      - MONGO_URI=192.168.1.36:7000
+      - MONGO_USERNAME=admin
+      - MONGO_PASSWORD=admin
+    ports:
+      - "7001:9001"
+    depends_on:
+      - mongo
+    links:
+      - mongo
+  http:
+    container_name: http
+    build: ./http-server
+    environment:
+      - PORT=9001
+      - GRPC_URI=192.168.1.36:7001
+      - TOKEN=foobarbaz
+    ports:
+      - "7002:9001"
+    depends_on:
+      - grpc
+    links:
+      - grpc

@@ -1,0 +1,6 @@
+.idea
+mongodb/logs
+mongodb/data
+.DS_Store
+http-server/*-server
+grpc-server/*-server
